@@ -1,0 +1,19 @@
+node_modules/
+dist/
+
+# base de datos local
+*.db
+*.db-journal
+*.sqlite
+
+# logs y varios
+*.log
+.DS_Store
+
+# entorno
+.env
+.env.local
+
+# build del dashboard
+web/node_modules/
+web/dist/
