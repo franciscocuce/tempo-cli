@@ -17,5 +17,5 @@ dist/
 .env.local
 
 # build del dashboard
-web/node_modules/
-web/dist/
+dashboard/node_modules/
+dashboard/dist/

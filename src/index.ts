@@ -3,6 +3,10 @@ import { add } from "./commands/add.js";
 import { list } from "./commands/list.js";
 import { remove } from "./commands/remove.js";
 import { toggle } from "./commands/toggle.js";
+import { start } from "./commands/start.js";
+import { run } from "./commands/run.js";
+import { history } from "./commands/history.js";
+import { serve } from "./commands/serve.js";
 
 const program = new Command();
 
@@ -40,5 +44,28 @@ program
   .command("disable <id>")
   .description("Pausa una tarea sin borrarla")
   .action((id: string) => toggle(id, false));
+
+program
+  .command("start")
+  .description("Arranca el scheduler (tick cada minuto, Ctrl+C para parar)")
+  .action(start);
+
+program
+  .command("run <id>")
+  .description("Ejecuta una tarea ahora mismo, sin esperar al cron")
+  .action(run);
+
+program
+  .command("history")
+  .description("Muestra las últimas ejecuciones")
+  .option("--task <id>", "filtrar por tarea")
+  .option("--limit <n>", "cantidad máxima de filas", "20")
+  .action(history);
+
+program
+  .command("serve")
+  .description("Levanta la API REST + dashboard web")
+  .option("--port <n>", "puerto donde escuchar", "3000")
+  .action(serve);
 
 program.parse();
