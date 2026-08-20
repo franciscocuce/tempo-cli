@@ -1,10 +1,13 @@
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
 import express, { type Express } from "express";
 import type { Database } from "better-sqlite3";
 import { createApiRouter } from "./routes.js";
 
-const DASHBOARD_DIST = path.join(process.cwd(), "dashboard", "dist");
+// dos niveles arriba es la raíz del proyecto, tanto desde src/api/ como desde dist/api/
+const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
+const DASHBOARD_DIST = path.resolve(MODULE_DIR, "..", "..", "dashboard", "dist");
 
 export function createServer(db: Database): Express {
   const app = express();
