@@ -1,5 +1,5 @@
 import { openDb } from "../db/connection.js";
-import { removeTask } from "../store/tasks.js";
+import { removeMonitor } from "../store/monitors.js";
 import { parseId } from "./parse-id.js";
 
 export function remove(rawId: string): void {
@@ -10,12 +10,12 @@ export function remove(rawId: string): void {
 
   const db = openDb();
   try {
-    if (removeTask(db, id)) {
-      console.log(`Tarea ${id} eliminada`);
-    } else {
-      console.error(`No existe una tarea con id ${id}`);
-      process.exitCode = 1;
+    if (removeMonitor(db, id)) {
+      console.log(`Monitor ${id} eliminado (con todo su historial)`);
+      return;
     }
+    console.error(`No existe un monitor con id ${id}`);
+    process.exitCode = 1;
   } finally {
     db.close();
   }

@@ -1,9 +1,14 @@
-import type { Task } from "../store/tasks.js";
 import { parseExpression, nextRun } from "../cron/index.js";
+import type { Monitor } from "../store/monitors.js";
 
-export function taskNextRun(task: Task, from: Date = new Date()): Date | null {
-  if (!task.enabled) {
+export function monitorNextRun(monitor: Monitor, from: Date = new Date()): Date | null {
+  if (!monitor.enabled) {
     return null;
   }
-  return nextRun(parseExpression(task.cron), from);
+
+  try {
+    return nextRun(parseExpression(monitor.cron), from);
+  } catch {
+    return null;
+  }
 }

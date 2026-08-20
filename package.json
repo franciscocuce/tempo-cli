@@ -1,7 +1,7 @@
 {
   "name": "tempo",
-  "version": "0.1.0",
-  "description": "Scheduler tipo cron hecho desde cero en Node + TypeScript",
+  "version": "0.2.0",
+  "description": "Monitor de uptime self-hosted con motor cron propio, en Node + TypeScript",
   "type": "module",
   "bin": {
     "tempo": "dist/index.js"
@@ -19,9 +19,11 @@
     "web": "npm run dashboard:build && npm run serve"
   },
   "keywords": [
+    "uptime",
+    "monitoring",
+    "status-page",
     "cron",
-    "scheduler",
-    "cli",
+    "self-hosted",
     "typescript"
   ],
   "author": "Francisco Cuce",

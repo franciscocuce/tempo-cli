@@ -1,30 +1,35 @@
 import { openDb } from "../db/connection.js";
-import { addTask } from "../store/tasks.js";
-import { newTaskSchema } from "../store/validate.js";
+import { addMonitor } from "../store/monitors.js";
+import { newMonitorSchema } from "../store/validate.js";
 import { parseExpression, nextRun } from "../cron/index.js";
 
 interface AddOptions {
   name: string;
+  url: string;
   cron: string;
-  type: string;
-  command?: string;
-  url?: string;
+  method?: string;
+  expect?: string;
+  keyword?: string;
+  keywordMode?: string;
+  timeout?: string;
+  redirects?: boolean;
+  confirm?: string;
+  private?: boolean;
 }
 
 export function add(options: AddOptions): void {
-  if (options.command !== undefined && options.url !== undefined) {
-    console.error("Usá --command o --url, no los dos");
-    process.exitCode = 1;
-    return;
-  }
-
-  const payload = options.type === "http" ? options.url : options.command;
-
-  const parsed = newTaskSchema.safeParse({
+  const parsed = newMonitorSchema.safeParse({
     name: options.name,
+    url: options.url,
     cron: options.cron,
-    type: options.type,
-    payload: payload ?? "",
+    method: options.method?.toUpperCase(),
+    expectedStatus: options.expect,
+    keyword: options.keyword ?? null,
+    keywordMode: options.keywordMode,
+    timeoutMs: options.timeout,
+    followRedirects: options.redirects !== false,
+    confirmThreshold: options.confirm,
+    isPublic: options.private !== true,
   });
 
   if (!parsed.success) {
@@ -37,16 +42,15 @@ export function add(options: AddOptions): void {
 
   const db = openDb();
   try {
-    const task = addTask(db, parsed.data);
-    const next = nextRun(parseExpression(task.cron), new Date());
-    console.log(`Tarea "${task.name}" creada con id ${task.id}`);
-    console.log(`Próximo disparo: ${next.toLocaleString()}`);
+    const monitor = addMonitor(db, parsed.data);
+    const next = nextRun(parseExpression(monitor.cron), new Date());
+    console.log(`Monitor "${monitor.name}" creado con id ${monitor.id}`);
+    console.log(`Próximo chequeo: ${next.toLocaleString()}`);
   } catch (err) {
-    // el UNIQUE de name salta acá si el nombre ya existe
     const message = err instanceof Error ? err.message : String(err);
     console.error(
       message.includes("UNIQUE")
-        ? `Ya existe una tarea con el nombre "${options.name}"`
+        ? `Ya existe un monitor con el nombre "${options.name}"`
         : message
     );
     process.exitCode = 1;

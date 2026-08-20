@@ -1,20 +1,39 @@
 import { openDb } from "../db/connection.js";
-import { listTasks } from "../store/tasks.js";
-import { startScheduler } from "../scheduler/loop.js";
+import { listMonitors } from "../store/monitors.js";
+import { startDaemon, AlreadyRunningError } from "../scheduler/daemon.js";
 
 export function start(): void {
   const db = openDb();
-  const active = listTasks(db).filter((t) => t.enabled).length;
 
-  console.log(`tempo iniciado — ${active} tarea(s) activa(s), tick cada minuto`);
-  console.log("Ctrl+C para detener");
+  let daemon;
+  try {
+    daemon = startDaemon(db);
+  } catch (err) {
+    if (err instanceof AlreadyRunningError) {
+      console.error(err.message);
+      db.close();
+      process.exitCode = 1;
+      return;
+    }
+    throw err;
+  }
 
-  const scheduler = startScheduler(db);
+  const active = listMonitors(db).filter((monitor) => monitor.enabled).length;
+  console.log(`tempo vigilando ${active} monitor(es). Ctrl+C para parar.`);
 
-  process.on("SIGINT", () => {
-    console.log("\nDeteniendo scheduler...");
-    scheduler.stop();
+  let stopping = false;
+  const shutdown = async () => {
+    if (stopping) {
+      return;
+    }
+    stopping = true;
+
+    console.log("\nEsperando a que terminen los chequeos en curso...");
+    await daemon.stop();
     db.close();
     process.exit(0);
-  });
+  };
+
+  process.on("SIGINT", () => void shutdown());
+  process.on("SIGTERM", () => void shutdown());
 }

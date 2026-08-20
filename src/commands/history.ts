@@ -1,45 +1,39 @@
 import { openDb } from "../db/connection.js";
-import { listRuns } from "../store/runs.js";
+import { listChecks } from "../store/checks.js";
 import { parseId } from "./parse-id.js";
 
-const OUTPUT_PREVIEW_CHARS = 60;
+const ERROR_PREVIEW_CHARS = 60;
 
 interface HistoryOptions {
-  task?: string;
+  monitor?: string;
   limit?: string;
 }
 
 export function history(options: HistoryOptions): void {
-  let taskId: number | undefined;
-  if (options.task !== undefined) {
-    taskId = parseId(options.task);
-    if (taskId === undefined) {
+  let monitorId: number | undefined;
+  if (options.monitor !== undefined) {
+    monitorId = parseId(options.monitor);
+    if (monitorId === undefined) {
       return;
     }
-  }
-
-  const limit = options.limit !== undefined ? Number(options.limit) : 20;
-  if (!Number.isInteger(limit) || limit <= 0) {
-    console.error(`"${options.limit}" no es un límite válido`);
-    process.exitCode = 1;
-    return;
   }
 
   const db = openDb();
   try {
-    const runs = listRuns(db, { taskId, limit });
+    const checks = listChecks(db, { monitorId, limit: Number(options.limit ?? 20) });
 
-    if (runs.length === 0) {
-      console.log("Todavía no hay ejecuciones registradas");
+    if (checks.length === 0) {
+      console.log("Todavía no hay chequeos registrados");
       return;
     }
 
-    const rows = runs.map((run) => ({
-      fecha: new Date(run.startedAt).toLocaleString(),
-      tarea: run.taskName,
-      estado: run.status,
-      "duración": `${run.durationMs}ms`,
-      output: run.output.replace(/\s+/g, " ").slice(0, OUTPUT_PREVIEW_CHARS),
+    const rows = checks.map((check) => ({
+      fecha: new Date(check.checkedAt).toLocaleString(),
+      monitor: check.monitorName,
+      estado: check.ok ? "ok" : "FALLÓ",
+      http: check.httpStatus ?? "—",
+      latencia: `${check.latencyMs}ms`,
+      detalle: (check.error ?? "").replace(/\s+/g, " ").slice(0, ERROR_PREVIEW_CHARS),
     }));
 
     console.table(rows);

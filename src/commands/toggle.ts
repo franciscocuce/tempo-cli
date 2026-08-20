@@ -1,5 +1,5 @@
 import { openDb } from "../db/connection.js";
-import { setTaskEnabled } from "../store/tasks.js";
+import { setMonitorEnabled } from "../store/monitors.js";
 import { parseId } from "./parse-id.js";
 
 export function toggle(rawId: string, enabled: boolean): void {
@@ -10,12 +10,12 @@ export function toggle(rawId: string, enabled: boolean): void {
 
   const db = openDb();
   try {
-    if (setTaskEnabled(db, id, enabled)) {
-      console.log(`Tarea ${id} ${enabled ? "activada" : "pausada"}`);
-    } else {
-      console.error(`No existe una tarea con id ${id}`);
-      process.exitCode = 1;
+    if (setMonitorEnabled(db, id, enabled)) {
+      console.log(`Monitor ${id} ${enabled ? "activado" : "pausado"}`);
+      return;
     }
+    console.error(`No existe un monitor con id ${id}`);
+    process.exitCode = 1;
   } finally {
     db.close();
   }

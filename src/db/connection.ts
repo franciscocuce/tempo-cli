@@ -1,12 +1,27 @@
+import { homedir } from "node:os";
+import path from "node:path";
+import { mkdirSync } from "node:fs";
 import Database from "better-sqlite3";
-import { SCHEMA } from "./schema.js";
+import { migrate } from "./migrations/index.js";
 
-export const DEFAULT_DB_PATH = "tempo.db";
+export const IN_MEMORY = ":memory:";
 
-export function openDb(path: string = DEFAULT_DB_PATH): Database.Database {
-  const db = new Database(path);
+export function dataDir(): string {
+  return process.env.TEMPO_DATA_DIR ?? path.join(homedir(), ".tempo");
+}
+
+export function defaultDbPath(): string {
+  return path.join(dataDir(), "tempo.db");
+}
+
+export function openDb(dbPath: string = defaultDbPath()): Database.Database {
+  if (dbPath !== IN_MEMORY) {
+    mkdirSync(path.dirname(dbPath), { recursive: true });
+  }
+
+  const db = new Database(dbPath);
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
-  db.exec(SCHEMA);
+  migrate(db);
   return db;
 }
