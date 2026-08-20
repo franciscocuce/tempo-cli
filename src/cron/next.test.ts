@@ -43,4 +43,19 @@ describe("nextRun", () => {
     // el 13 (martes) llega antes que el próximo viernes (16)
     expect(next("0 0 13 * 5", from)).toEqual(new Date(2026, 0, 13, 0, 0, 0));
   });
+
+  it("cruza el fin de año", () => {
+    const from = new Date(2026, 11, 31, 23, 59, 0);
+    expect(next("* * * * *", from)).toEqual(new Date(2027, 0, 1, 0, 0, 0));
+  });
+
+  it("encuentra el 29 de febrero del próximo año bisiesto", () => {
+    const from = new Date(2026, 5, 1, 0, 0, 0);
+    expect(next("0 0 29 2 *", from)).toEqual(new Date(2028, 1, 29, 0, 0, 0));
+  });
+
+  it("una expresión que nunca dispara falla en vez de colgarse", () => {
+    const from = new Date(2026, 0, 1, 0, 0, 0);
+    expect(() => next("0 0 30 2 *", from)).toThrowError(/horizonte/);
+  });
 });
