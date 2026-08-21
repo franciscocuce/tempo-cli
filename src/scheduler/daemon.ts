@@ -3,14 +3,20 @@ import { acquireLock, lockHolder, type Lock } from "./lock.js";
 import { startScheduler, type Scheduler } from "./loop.js";
 import type { Monitor } from "../store/monitors.js";
 import type { Transition } from "../incidents/state.js";
+import { publishTransition } from "../events/publish.js";
+import type { EventBus } from "../events/bus.js";
 
 export interface Daemon {
   stop: () => Promise<void>;
 }
 
+export interface DaemonOptions {
+  bus?: EventBus;
+}
+
 export class AlreadyRunningError extends Error {}
 
-export function startDaemon(db: Database): Daemon {
+export function startDaemon(db: Database, options: DaemonOptions = {}): Daemon {
   const lock: Lock | null = acquireLock(db);
 
   if (lock === null) {
@@ -21,7 +27,14 @@ export function startDaemon(db: Database): Daemon {
     );
   }
 
-  const scheduler: Scheduler = startScheduler(db, { onCheck: logCheck, onSkip: logSkip });
+  const onCheck = (monitor: Monitor, transition: Transition): void => {
+    logCheck(monitor, transition);
+    if (options.bus !== undefined) {
+      publishTransition(options.bus, monitor, transition);
+    }
+  };
+
+  const scheduler: Scheduler = startScheduler(db, { onCheck, onSkip: logSkip });
 
   return {
     stop: async () => {

@@ -8,6 +8,7 @@ import { check } from "./commands/check.js";
 import { history } from "./commands/history.js";
 import { incidents } from "./commands/incidents.js";
 import { channelAdd, channelList, channelRemove, channelTest } from "./commands/channel.js";
+import { userAdd, userList, userPassword, userRemove } from "./commands/user.js";
 import { start } from "./commands/start.js";
 import { serve } from "./commands/serve.js";
 import { maintenance } from "./commands/maintenance.js";
@@ -106,6 +107,22 @@ channel
   .command("test <id>")
   .description("Manda un aviso de prueba")
   .action((id: string) => void channelTest(id));
+
+const user = program.command("user").description("Usuarios del dashboard");
+
+user
+  .command("add")
+  .description("Crea un usuario (pide la contraseña por consola)")
+  .requiredOption("--email <email>", "email para iniciar sesión")
+  .option("--password <contraseña>", "pasarla por acá la deja en el historial del shell")
+  .action((options) => void userAdd(options));
+
+user.command("list").description("Lista los usuarios").action(userList);
+user
+  .command("password <email>")
+  .description("Cambia la contraseña y cierra las sesiones abiertas")
+  .action((email: string) => void userPassword(email));
+user.command("rm <id>").description("Elimina un usuario").action(userRemove);
 
 program
   .command("start")
