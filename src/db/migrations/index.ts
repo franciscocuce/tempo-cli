@@ -2,8 +2,9 @@ import type { Database } from "better-sqlite3";
 import type { Migration } from "./types.js";
 import { initial } from "./001-initial.js";
 import { monitors } from "./002-monitors.js";
+import { users } from "./003-users.js";
 
-const MIGRATIONS: Migration[] = [initial, monitors];
+const MIGRATIONS: Migration[] = [initial, monitors, users];
 
 export function currentVersion(db: Database): number {
   return db.pragma("user_version", { simple: true }) as number;
