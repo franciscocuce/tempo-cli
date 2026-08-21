@@ -1,44 +1,72 @@
-import { useCallback, useEffect, useState } from "react";
-import { getRuns, getTasks, type Run, type Task } from "./api.js";
-import { TaskForm } from "./TaskForm.js";
-import { TaskList } from "./TaskList.js";
-import { RunsHistory } from "./RunsHistory.js";
+import { useCallback, useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { AuthProvider, useAuth } from "./lib/auth.js";
+import { ToastProvider } from "./lib/toast.js";
+import { useEventStream } from "./lib/events.js";
+import { Layout } from "./components/Layout.js";
+import { Spinner } from "./components/ui.js";
+import { Login } from "./pages/Login.js";
+import { Overview } from "./pages/Overview.js";
+import { MonitorDetail } from "./pages/MonitorDetail.js";
+import { Incidents } from "./pages/Incidents.js";
+import { Settings } from "./pages/Settings.js";
+import { Status } from "./pages/Status.js";
 
-const POLL_MS = 5000;
+function Private() {
+  const { user, loading } = useAuth();
 
-export function App() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [runs, setRuns] = useState<Run[]>([]);
+  // cada evento del servidor bump-ea la clave y las pantallas se vuelven a pedir:
+  // es más simple que mantener un cache y no puede quedar desincronizado
+  const [reloadKey, setReloadKey] = useState(0);
+  const bump = useCallback(() => setReloadKey((current) => current + 1), []);
+  const connected = useEventStream(bump);
 
-  const refresh = useCallback(() => {
-    getTasks().then(setTasks).catch(() => {});
-    getRuns().then(setRuns).catch(() => {});
-  }, []);
+  if (loading) {
+    return (
+      <div className="flex min-h-full items-center justify-center">
+        <Spinner label="Abriendo tempo" />
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    refresh();
-    const timer = setInterval(refresh, POLL_MS);
-    return () => clearInterval(timer);
-  }, [refresh]);
+  if (user === null) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
-    <main>
-      <header>
-        <h1>tempo</h1>
-        <p>scheduler tipo cron — dashboard</p>
-      </header>
+    <Layout connected={connected}>
+      <Routes>
+        <Route path="/" element={<Overview reloadKey={reloadKey} />} />
+        <Route path="/monitors/:id" element={<MonitorDetail reloadKey={reloadKey} />} />
+        <Route path="/incidents" element={<Incidents reloadKey={reloadKey} />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Layout>
+  );
+}
 
-      <TaskForm onCreated={refresh} />
+function LoginRoute() {
+  const { user, loading } = useAuth();
 
-      <section className="card">
-        <h2>Tareas</h2>
-        <TaskList tasks={tasks} onChange={refresh} />
-      </section>
+  if (loading) {
+    return null;
+  }
+  return user === null ? <Login /> : <Navigate to="/" replace />;
+}
 
-      <section className="card">
-        <h2>Historial</h2>
-        <RunsHistory runs={runs} />
-      </section>
-    </main>
+export function App() {
+  return (
+    <BrowserRouter>
+      <ToastProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/status" element={<Status />} />
+            <Route path="/login" element={<LoginRoute />} />
+            <Route path="/*" element={<Private />} />
+          </Routes>
+        </AuthProvider>
+      </ToastProvider>
+    </BrowserRouter>
   );
 }

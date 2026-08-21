@@ -1,139 +1,102 @@
-:root {
-  --bg: #0f1115;
-  --card: #181b21;
-  --border: #2a2f3a;
-  --text: #e6e8eb;
-  --muted: #8b93a1;
-  --accent: #5b9dff;
-  --ok: #4ade80;
-  --error: #f87171;
+@import "tailwindcss";
+
+/* los tokens semánticos viven en variables propias y el tema los reescribe;
+   @theme inline hace que Tailwind emita la referencia en vez de copiar el valor */
+@theme inline {
+  --color-bg: var(--t-bg);
+  --color-surface: var(--t-surface);
+  --color-raised: var(--t-raised);
+  --color-line: var(--t-line);
+  --color-ink: var(--t-ink);
+  --color-dim: var(--t-dim);
+  --color-accent: var(--t-accent);
+  --color-accent-ink: var(--t-accent-ink);
+  --color-up: var(--t-up);
+  --color-down: var(--t-down);
+  --color-warn: var(--t-warn);
+  --color-idle: var(--t-idle);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono",
+    monospace;
 }
 
-* {
-  box-sizing: border-box;
+:root {
+  --t-bg: #0b0f14;
+  --t-surface: #111820;
+  --t-raised: #16202b;
+  --t-line: #223040;
+  --t-ink: #e6edf3;
+  --t-dim: #8b9bab;
+  --t-accent: #7cccee;
+  --t-accent-ink: #052430;
+  --t-up: #3fb950;
+  --t-down: #f85149;
+  --t-warn: #d29922;
+  --t-idle: #2b3947;
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --t-bg: #f6f8fa;
+  --t-surface: #ffffff;
+  --t-raised: #f0f3f6;
+  --t-line: #d6dee6;
+  --t-ink: #17212b;
+  --t-dim: #5c6d7e;
+  --t-accent: #1d7fa3;
+  --t-accent-ink: #ffffff;
+  --t-up: #1a7f37;
+  --t-down: #cf222e;
+  --t-warn: #9a6700;
+  --t-idle: #d6dee6;
+
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--t-bg);
+  color: var(--t-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-main {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+/* los números tienen que alinearse en columna: es una herramienta de medición */
+.tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
-header h1 {
-  margin: 0;
-  font-size: 2rem;
-  letter-spacing: -0.02em;
-}
-
-header p {
-  margin: 0.25rem 0 2rem;
-  color: var(--muted);
-}
-
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
-}
-
-.card h2 {
-  margin: 0 0 1rem;
-  font-size: 1.1rem;
-}
-
-.fields {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-input,
-select {
-  background: #11141a;
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 0.5rem 0.65rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  flex: 1 1 140px;
-}
-
-button {
-  background: var(--accent);
-  color: #0b0d10;
-  border: none;
-  padding: 0.5rem 0.85rem;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-button:hover {
-  filter: brightness(1.1);
-}
-
-button.danger {
-  background: var(--error);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.88rem;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 0.55rem 0.5rem;
-  border-bottom: 1px solid var(--border);
-}
-
-th {
-  color: var(--muted);
-  font-weight: 500;
-}
-
-tr.paused {
-  color: var(--muted);
-}
-
-td.actions {
-  display: flex;
-  gap: 0.4rem;
-}
-
-td.ok {
-  color: var(--ok);
-}
-
-td.error {
-  color: var(--error);
-}
-
-code {
-  background: #11141a;
-  padding: 0.1rem 0.35rem;
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--t-accent);
+  outline-offset: 2px;
   border-radius: 4px;
-  font-size: 0.85em;
 }
 
-.error {
-  color: var(--error);
-  margin: 0.75rem 0 0;
+@keyframes tempo-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }
 
-.empty {
-  color: var(--muted);
-  margin: 0;
+.pulse {
+  animation: tempo-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+  }
 }
