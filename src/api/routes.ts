@@ -4,14 +4,13 @@ import {
   addMonitor,
   getMonitor,
   listMonitors,
-  listPublicMonitors,
   removeMonitor,
   updateMonitor,
   type Monitor,
 } from "../store/monitors.js";
 import { clampLimit, lastCheck, listChecks } from "../store/checks.js";
 import { countOpenIncidents, getOpenIncident, listIncidents } from "../store/incidents.js";
-import { monitorStats, uptimeSince, utcDay } from "../store/stats.js";
+import { monitorStats, uptimeSince } from "../store/stats.js";
 import {
   addChannel,
   getChannel,
@@ -23,8 +22,8 @@ import { newMonitorSchema, patchMonitorSchema, newChannelSchema, issuesToMessage
 import { checkMonitor } from "../scheduler/runner.js";
 import { monitorNextRun } from "../scheduler/next-run.js";
 import { send } from "../notify/index.js";
-
-const HISTORY_DAYS = 90;
+import { publishTransition } from "../events/publish.js";
+import type { EventBus } from "../events/bus.js";
 
 function parseIdParam(raw: string): number | null {
   const id = Number(raw);
@@ -57,7 +56,7 @@ function statusOf(monitor: Monitor, down: boolean, checked: boolean): string {
   return down ? "down" : "up";
 }
 
-export function createApiRouter(db: Database): Router {
+export function createApiRouter(db: Database, bus: EventBus): Router {
   const router = Router();
 
   router.get("/monitors", (_req, res) => {
@@ -159,6 +158,8 @@ export function createApiRouter(db: Database): Router {
     }
 
     const transition = await checkMonitor(db, monitor);
+    publishTransition(bus, monitor, transition);
+
     res.json({
       ...transition.outcome,
       opened: transition.opened,
@@ -300,32 +301,6 @@ export function createApiRouter(db: Database): Router {
     } catch (err) {
       res.status(502).json({ error: err instanceof Error ? err.message : String(err) });
     }
-  });
-
-  router.get("/public/status", (_req, res) => {
-    const now = new Date();
-    const monitors = listPublicMonitors(db);
-
-    res.json({
-      generatedAt: now.toISOString(),
-      // el historial va compacto: 90 días con el objeto completo son 25 kB de nulls por monitor
-      from: utcDay(new Date(now.getTime() - (HISTORY_DAYS - 1) * 86_400_000)),
-      days: HISTORY_DAYS,
-      monitors: monitors.map((monitor) => {
-        const stats = monitorStats(db, monitor.id, now, HISTORY_DAYS);
-        const last = lastCheck(db, monitor.id);
-        const open = getOpenIncident(db, monitor.id);
-
-        return {
-          name: monitor.name,
-          status: statusOf(monitor, open !== undefined, last !== undefined),
-          uptime24h: stats.uptime24h.percent,
-          uptime30d: stats.uptime30d.percent,
-          p95: stats.p95,
-          days: stats.history.map((day) => day.percent),
-        };
-      }),
-    });
   });
 
   return router;
