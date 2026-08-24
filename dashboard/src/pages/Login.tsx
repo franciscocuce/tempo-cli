@@ -42,7 +42,7 @@ export function Login() {
         </div>
 
         <form
-          onSubmit={submit}
+          onSubmit={(event) => void submit(event)}
           className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-5"
         >
           {setupNeeded && (

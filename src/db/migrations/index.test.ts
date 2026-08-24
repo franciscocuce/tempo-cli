@@ -37,7 +37,7 @@ describe("migraciones", () => {
     migrate(db);
     const tables = tableNames(db);
     expect(tables).toEqual(
-      expect.arrayContaining(["monitors", "checks", "checks_daily", "incidents", "channels"])
+      expect.arrayContaining(["monitors", "checks", "checks_daily", "incidents", "channels"]),
     );
   });
 

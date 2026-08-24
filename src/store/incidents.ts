@@ -49,12 +49,12 @@ export function openIncident(
   monitorId: number,
   startedAt: string,
   cause: string,
-  failedChecks: number
+  failedChecks: number,
 ): number {
   const result = db
     .prepare(
       `INSERT INTO incidents (monitor_id, started_at, cause, failed_checks)
-       VALUES (?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?)`,
     )
     .run(monitorId, startedAt, cause, failedChecks);
 
@@ -63,8 +63,10 @@ export function openIncident(
 
 export function getOpenIncident(db: Database, monitorId: number): Incident | undefined {
   const row = db
-    .prepare(`${SELECT} WHERE incidents.monitor_id = ? AND incidents.resolved_at IS NULL
-              ORDER BY incidents.id DESC LIMIT 1`)
+    .prepare(
+      `${SELECT} WHERE incidents.monitor_id = ? AND incidents.resolved_at IS NULL
+              ORDER BY incidents.id DESC LIMIT 1`,
+    )
     .get(monitorId) as IncidentRow | undefined;
 
   return row ? rowToIncident(row) : undefined;

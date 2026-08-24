@@ -3,7 +3,10 @@ import { MIN_PASSWORD_LENGTH } from "./password.js";
 
 const password = z
   .string()
-  .min(MIN_PASSWORD_LENGTH, `La contraseña tiene que tener al menos ${MIN_PASSWORD_LENGTH} caracteres`)
+  .min(
+    MIN_PASSWORD_LENGTH,
+    `La contraseña tiene que tener al menos ${MIN_PASSWORD_LENGTH} caracteres`,
+  )
   .max(200, "La contraseña es demasiado larga");
 
 const email = z.string().trim().email("Eso no parece un email");

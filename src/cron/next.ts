@@ -37,7 +37,7 @@ export function nextRun(schedule: CronSchedule, from: Date): Date {
   }
 
   throw new Error(
-    `No se encontró un próximo disparo dentro del horizonte de búsqueda (${HORIZON_YEARS} años)`
+    `No se encontró un próximo disparo dentro del horizonte de búsqueda (${HORIZON_YEARS} años)`,
   );
 }
 

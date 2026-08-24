@@ -50,7 +50,7 @@ export function uptimeSince(db: Database, monitorId: number, since: Date): Uptim
     .prepare(
       `SELECT COUNT(*) AS total, SUM(CASE WHEN ok = 0 THEN 1 ELSE 0 END) AS failed
          FROM checks
-        WHERE monitor_id = ? AND checked_at >= ?`
+        WHERE monitor_id = ? AND checked_at >= ?`,
     )
     .get(monitorId, since.toISOString()) as { total: number; failed: number | null };
 
@@ -60,12 +60,12 @@ export function uptimeSince(db: Database, monitorId: number, since: Date): Uptim
 export function latencyPercentiles(
   db: Database,
   monitorId: number,
-  since: Date
+  since: Date,
 ): { p50: number | null; p95: number | null } {
   const rows = db
     .prepare(
       `SELECT latency_ms FROM checks
-        WHERE monitor_id = ? AND checked_at >= ? AND ok = 1`
+        WHERE monitor_id = ? AND checked_at >= ? AND ok = 1`,
     )
     .all(monitorId, since.toISOString()) as { latency_ms: number }[];
 
@@ -82,7 +82,7 @@ export function dailyHistory(db: Database, monitorId: number, days: number, now:
     .prepare(
       `SELECT day, total, failed, avg_latency
          FROM checks_daily
-        WHERE monitor_id = ? AND day >= ?`
+        WHERE monitor_id = ? AND day >= ?`,
     )
     .all(monitorId, utcDay(first)) as {
     day: string;
@@ -124,7 +124,7 @@ function rawDays(db: Database, monitorId: number, fromDay: string): DayStat[] {
               CAST(AVG(latency_ms) AS INTEGER) AS avg_latency
          FROM checks
         WHERE monitor_id = ? AND substr(checked_at, 1, 10) >= ?
-        GROUP BY day`
+        GROUP BY day`,
     )
     .all(monitorId, fromDay) as {
     day: string;
@@ -156,7 +156,7 @@ export function monitorStats(
   db: Database,
   monitorId: number,
   now: Date = new Date(),
-  historyDays = 90
+  historyDays = 90,
 ): MonitorStats {
   const since24h = new Date(now.getTime() - 86_400_000);
   const history = dailyHistory(db, monitorId, historyDays, now);

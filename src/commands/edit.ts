@@ -38,7 +38,7 @@ export function edit(rawId: string, options: EditOptions): void {
   };
 
   const given = Object.fromEntries(
-    Object.entries(patch).filter(([, value]) => value !== undefined)
+    Object.entries(patch).filter(([, value]) => value !== undefined),
   );
 
   if (Object.keys(given).length === 0) {

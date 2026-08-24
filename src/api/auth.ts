@@ -3,13 +3,7 @@ import type { Database } from "better-sqlite3";
 import { hashPassword, verifyPassword } from "../auth/password.js";
 import { newToken, safeEqual } from "../auth/tokens.js";
 import { loginSchema, setupSchema, changePasswordSchema } from "../auth/schemas.js";
-import {
-  countUsers,
-  createUser,
-  getUserByEmail,
-  setPassword,
-  type User,
-} from "../store/users.js";
+import { countUsers, createUser, getUserByEmail, setPassword, type User } from "../store/users.js";
 import {
   createSession,
   deleteSession,
@@ -17,7 +11,7 @@ import {
   pruneSessions,
   SESSION_TTL_MS,
 } from "../store/sessions.js";
-import { CSRF_COOKIE, SESSION_COOKIE, csrfCookie, sessionCookie } from "./cookies.js";
+import { CSRF_COOKIE, SESSION_COOKIE, csrfCookie, readCookie, sessionCookie } from "./cookies.js";
 import { requireAuth } from "./middleware/auth.js";
 import { issuesToMessage } from "../store/validate.js";
 import "./context.js";
@@ -72,7 +66,7 @@ export function createAuthRouter(db: Database, setup: SetupToken): Router {
     const user = getUserByEmail(db, parsed.data.email);
     const valid = await verifyPassword(
       user?.passwordHash ?? (await decoyHash()),
-      parsed.data.password
+      parsed.data.password,
     );
 
     if (user === undefined || !valid) {
@@ -86,8 +80,8 @@ export function createAuthRouter(db: Database, setup: SetupToken): Router {
   });
 
   router.post("/logout", (req, res) => {
-    const token = req.cookies?.[SESSION_COOKIE];
-    if (typeof token === "string" && token !== "") {
+    const token = readCookie(req, SESSION_COOKIE);
+    if (token !== undefined) {
       deleteSession(db, token);
     }
 

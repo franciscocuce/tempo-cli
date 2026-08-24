@@ -120,7 +120,7 @@ export interface PublicStatus {
 export class ApiError extends Error {
   constructor(
     message: string,
-    readonly status: number
+    readonly status: number,
   ) {
     super(message);
     this.name = "ApiError";
@@ -133,6 +133,17 @@ const CSRF_HEADER = "X-Tempo-CSRF";
 function csrfToken(): string {
   const match = document.cookie.match(new RegExp(`(?:^|; )${CSRF_COOKIE}=([^;]*)`));
   return match ? decodeURIComponent(match[1]) : "";
+}
+
+// la API contesta { error: "..." } cuando algo sale mal, pero lo que llega por la red
+// es texto sin garantías: si no tiene esa forma, devolvemos nada y el llamador pone un default
+function errorMessage(payload: unknown): string | undefined {
+  if (typeof payload !== "object" || payload === null) {
+    return undefined;
+  }
+
+  const { error } = payload as { error?: unknown };
+  return typeof error === "string" ? error : undefined;
 }
 
 async function call<T>(method: string, url: string, body?: unknown): Promise<T> {
@@ -156,10 +167,10 @@ async function call<T>(method: string, url: string, body?: unknown): Promise<T> 
     return undefined as T;
   }
 
-  const payload = await res.json().catch(() => ({}));
+  const payload: unknown = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new ApiError(payload.error ?? `Error ${res.status}`, res.status);
+    throw new ApiError(errorMessage(payload) ?? `Error ${res.status}`, res.status);
   }
 
   return payload as T;
@@ -178,15 +189,14 @@ export const api = {
   overview: () => call<Overview>("GET", "/api/overview"),
   monitors: () => call<Monitor[]>("GET", "/api/monitors"),
   monitor: (id: number) => call<Monitor>("GET", `/api/monitors/${id}`),
-  createMonitor: (input: Record<string, unknown>) =>
-    call<Monitor>("POST", "/api/monitors", input),
+  createMonitor: (input: Record<string, unknown>) => call<Monitor>("POST", "/api/monitors", input),
   updateMonitor: (id: number, patch: Record<string, unknown>) =>
     call<Monitor>("PATCH", `/api/monitors/${id}`, patch),
   deleteMonitor: (id: number) => call<void>("DELETE", `/api/monitors/${id}`),
   checkNow: (id: number) =>
     call<{ ok: boolean; httpStatus: number | null; latencyMs: number; error: string | null }>(
       "POST",
-      `/api/monitors/${id}/check`
+      `/api/monitors/${id}/check`,
     ),
   checks: (id: number, limit = 50) =>
     call<Check[]>("GET", `/api/monitors/${id}/checks?limit=${limit}`),

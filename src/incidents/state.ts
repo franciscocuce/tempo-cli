@@ -46,7 +46,7 @@ export function recordCheck(
   db: Database,
   monitor: Monitor,
   outcome: CheckOutcome,
-  at: Date = new Date()
+  at: Date = new Date(),
 ): Transition {
   const checkedAt = at.toISOString();
 

@@ -32,12 +32,12 @@ export function parseExpression(expr: string): CronSchedule {
     throw new Error(
       `Se esperaban 5 campos separados por espacios, se recibieron ${
         expr.trim() === "" ? 0 : fields.length
-      }: "${expr}"`
+      }: "${expr}"`,
     );
   }
 
   const [minute, hour, dayOfMonth, month, dayOfWeek] = fields.map((field, i) =>
-    parseField(field, FIELD_SPECS[i])
+    parseField(field, FIELD_SPECS[i]),
   );
 
   return { minute, hour, dayOfMonth, month, dayOfWeek };
@@ -108,9 +108,7 @@ function parseNumber(token: string, spec: FieldSpec): number {
   const value = Number(token);
   const upper = spec.name === "día de la semana" ? 7 : spec.max;
   if (value < spec.min || value > upper) {
-    throw new Error(
-      `Valor "${value}" fuera de rango ${spec.min}-${spec.max} (${spec.name})`
-    );
+    throw new Error(`Valor "${value}" fuera de rango ${spec.min}-${spec.max} (${spec.name})`);
   }
   return value;
 }

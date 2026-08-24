@@ -57,7 +57,7 @@ export function createServer(db: Database, options: ServerOptions = {}): Express
           upgradeInsecureRequests: null,
         },
       },
-    })
+    }),
   );
 
   app.use(cookieParser());

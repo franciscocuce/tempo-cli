@@ -17,7 +17,7 @@ export function rollupDay(db: Database, day: string): number {
     .prepare(
       `SELECT monitor_id, ok, latency_ms
          FROM checks
-        WHERE substr(checked_at, 1, 10) = ?`
+        WHERE substr(checked_at, 1, 10) = ?`,
     )
     .all(day) as { monitor_id: number; ok: number; latency_ms: number }[];
 
@@ -48,7 +48,7 @@ export function rollupDay(db: Database, day: string): number {
        total = excluded.total,
        failed = excluded.failed,
        avg_latency = excluded.avg_latency,
-       p95_latency = excluded.p95_latency`
+       p95_latency = excluded.p95_latency`,
   );
 
   db.transaction(() => {
@@ -61,7 +61,7 @@ export function rollupDay(db: Database, day: string): number {
         bucket.total,
         bucket.failed,
         avg,
-        percentile(bucket.latencies, 95) ?? 0
+        percentile(bucket.latencies, 95) ?? 0,
       );
     }
   })();
@@ -77,7 +77,7 @@ export function pendingDays(db: Database, now: Date): string[] {
       `SELECT DISTINCT substr(checked_at, 1, 10) AS day
          FROM checks
         WHERE substr(checked_at, 1, 10) < ?
-        ORDER BY day`
+        ORDER BY day`,
     )
     .all(today) as { day: string }[];
 

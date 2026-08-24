@@ -37,7 +37,7 @@ export function Status() {
         .catch(() => setFailed(true));
 
     void load();
-    const timer = setInterval(load, REFRESH_MS);
+    const timer = setInterval(() => void load(), REFRESH_MS);
     return () => clearInterval(timer);
   }, []);
 
@@ -114,9 +114,7 @@ export function Status() {
                   <span className="text-ink">{incident.monitorName}</span>
                   <span className="text-dim">{dateTime(incident.startedAt)}</span>
                   <span className="tabular text-dim">
-                    {incident.resolvedAt === null
-                      ? "en curso"
-                      : duration(incident.durationMs ?? 0)}
+                    {incident.resolvedAt === null ? "en curso" : duration(incident.durationMs ?? 0)}
                   </span>
                 </li>
               ))}

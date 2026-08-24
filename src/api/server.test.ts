@@ -297,7 +297,12 @@ describe("API REST", () => {
 
     it("los incidentes de monitores privados no salen", async () => {
       vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("boom", { status: 500 })));
-      const privado = addMonitor(db, { ...sample, name: "interno", isPublic: false, confirmThreshold: 1 });
+      const privado = addMonitor(db, {
+        ...sample,
+        name: "interno",
+        isPublic: false,
+        confirmThreshold: 1,
+      });
       await api.post(`/api/monitors/${privado.id}/check`);
 
       const res = await request(app).get("/api/public/status");

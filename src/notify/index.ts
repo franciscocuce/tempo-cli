@@ -24,7 +24,7 @@ export async function dispatch(channels: Channel[], alert: Alert): Promise<Deliv
           error: err instanceof Error ? err.message : String(err),
         };
       }
-    })
+    }),
   );
 }
 

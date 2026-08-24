@@ -8,9 +8,7 @@ describe("parseExpression", () => {
     expect(schedule.minute.values[0]).toBe(0);
     expect(schedule.minute.values[59]).toBe(59);
     expect(schedule.hour.values).toHaveLength(24);
-    expect(schedule.month.values).toEqual([
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
-    ]);
+    expect(schedule.month.values).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
   });
 
   it("marca '*' como no restringido y un valor suelto como restringido", () => {

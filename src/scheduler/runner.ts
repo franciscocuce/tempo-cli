@@ -13,7 +13,7 @@ const CERT_ALERT_DAYS = [14, 7, 3, 1];
 export async function checkMonitor(
   db: Database,
   monitor: Monitor,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): Promise<Transition> {
   const outcome = await runHttpCheck({
     url: monitor.url,
@@ -37,7 +37,7 @@ export async function checkMonitor(
 export async function refreshCertificate(
   db: Database,
   monitor: Monitor,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): Promise<Alert | null> {
   let info;
   try {

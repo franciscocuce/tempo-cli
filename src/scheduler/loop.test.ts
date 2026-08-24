@@ -38,7 +38,9 @@ describe("dueMonitors", () => {
   });
 
   it("saltea los pausados", () => {
-    expect(dueMonitors([monitor({ enabled: false })], new Date(2026, 0, 1, 10, 30))).toHaveLength(0);
+    expect(dueMonitors([monitor({ enabled: false })], new Date(2026, 0, 1, 10, 30))).toHaveLength(
+      0,
+    );
   });
 
   it("un cron roto no tumba al resto", () => {
@@ -69,7 +71,7 @@ describe("createLimiter", () => {
     const limit = createLimiter(1);
 
     await expect(limit(async () => Promise.reject(new Error("boom")))).rejects.toThrow("boom");
-    await expect(limit(async () => "sigo andando")).resolves.toBe("sigo andando");
+    await expect(limit(() => Promise.resolve("sigo andando"))).resolves.toBe("sigo andando");
   });
 });
 
@@ -95,7 +97,7 @@ describe("lock de instancia única", () => {
   it("no se lo puede llevar otro proceso vivo", () => {
     const now = new Date();
     db.prepare(
-      "INSERT INTO scheduler_lock (id, pid, host, heartbeat_at) VALUES (1, 99999, 'otra-maquina', ?)"
+      "INSERT INTO scheduler_lock (id, pid, host, heartbeat_at) VALUES (1, 99999, 'otra-maquina', ?)",
     ).run(now.toISOString());
 
     expect(acquireLock(db, now)).toBeNull();
@@ -105,7 +107,7 @@ describe("lock de instancia única", () => {
     const now = new Date();
     const viejo = new Date(now.getTime() - 10 * 60_000);
     db.prepare(
-      "INSERT INTO scheduler_lock (id, pid, host, heartbeat_at) VALUES (1, 99999, 'otra-maquina', ?)"
+      "INSERT INTO scheduler_lock (id, pid, host, heartbeat_at) VALUES (1, 99999, 'otra-maquina', ?)",
     ).run(viejo.toISOString());
 
     const lock = acquireLock(db, now);

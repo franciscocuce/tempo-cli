@@ -43,7 +43,7 @@ export async function runHttpCheck(options: CheckOptions): Promise<CheckOutcome>
 
 async function request(
   options: CheckOptions,
-  signal: AbortSignal
+  signal: AbortSignal,
 ): Promise<{ response: Response; url: URL }> {
   let url = await assertAllowedTarget(options.url);
 
@@ -79,7 +79,7 @@ async function request(
 async function checkKeyword(
   response: Response,
   options: CheckOptions,
-  url: URL
+  url: URL,
 ): Promise<string | null> {
   if (options.keyword === null) {
     await discard(response);

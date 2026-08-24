@@ -6,7 +6,7 @@ export function publishTransition(
   bus: EventBus,
   monitor: Monitor,
   transition: Transition,
-  at: Date = new Date()
+  at: Date = new Date(),
 ): void {
   const isoAt = at.toISOString();
 

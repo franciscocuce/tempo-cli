@@ -40,8 +40,7 @@ export function getUser(db: Database, id: number): User | undefined {
 
 export function getUserByEmail(db: Database, email: string): UserWithHash | undefined {
   const row = db.prepare("SELECT * FROM users WHERE email = ?").get(normalizeEmail(email)) as
-    | UserRow
-    | undefined;
+    UserRow | undefined;
 
   return row ? { ...rowToUser(row), passwordHash: row.password_hash } : undefined;
 }
@@ -57,7 +56,9 @@ export function countUsers(db: Database): number {
 }
 
 export function setPassword(db: Database, id: number, passwordHash: string): boolean {
-  return db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(passwordHash, id).changes > 0;
+  return (
+    db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(passwordHash, id).changes > 0
+  );
 }
 
 export function removeUser(db: Database, id: number): boolean {

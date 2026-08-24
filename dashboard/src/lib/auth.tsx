@@ -34,8 +34,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // el 401 del primer arranque trae la pista de que todavía no hay ningún usuario
       if (err instanceof ApiError && err.status === 401) {
         const res = await fetch("/api/auth/me", { credentials: "same-origin" });
-        const body = await res.json().catch(() => ({}));
-        setSetupNeeded(body.setupNeeded === true);
+        const body: unknown = await res.json().catch(() => ({}));
+        setSetupNeeded(
+          typeof body === "object" &&
+            body !== null &&
+            (body as { setupNeeded?: unknown }).setupNeeded === true,
+        );
       }
     } finally {
       setLoading(false);
@@ -64,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null);
       },
     }),
-    [user, loading, setupNeeded]
+    [user, loading, setupNeeded],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

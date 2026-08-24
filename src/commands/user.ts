@@ -3,11 +3,18 @@ import { openDb } from "../db/connection.js";
 import { hashPassword } from "../auth/password.js";
 import { newUserSchema } from "../auth/schemas.js";
 import { issuesToMessage } from "../store/validate.js";
-import { createUser, listUsers, getUserByEmail, setPassword, removeUser, countUsers } from "../store/users.js";
+import {
+  createUser,
+  listUsers,
+  getUserByEmail,
+  setPassword,
+  removeUser,
+  countUsers,
+} from "../store/users.js";
 import { deleteUserSessions } from "../store/sessions.js";
 import { parseId } from "./parse-id.js";
 
-interface UserAddOptions {
+export interface UserAddOptions {
   email: string;
   password?: string;
 }
@@ -60,7 +67,7 @@ export function userList(): void {
         id: user.id,
         email: user.email,
         creado: new Date(user.createdAt).toLocaleString(),
-      }))
+      })),
     );
   } finally {
     db.close();

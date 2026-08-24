@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { api, type Incident } from "../lib/api.js";
 import { Empty, Spinner } from "../components/ui.js";
 import { dateTime, duration, relative } from "../lib/format.js";
+import { useNow } from "../lib/now.js";
 
 export function Incidents({ reloadKey }: { reloadKey: number }) {
   const [incidents, setIncidents] = useState<Incident[] | null>(null);
+  const now = useNow();
 
   useEffect(() => {
     api
@@ -49,14 +51,16 @@ export function Incidents({ reloadKey }: { reloadKey: number }) {
                   </Link>
                   <span
                     className={`rounded-full border px-2 py-0.5 text-xs ${
-                      open ? "border-down/40 bg-down/10 text-down" : "border-line bg-raised text-dim"
+                      open
+                        ? "border-down/40 bg-down/10 text-down"
+                        : "border-line bg-raised text-dim"
                     }`}
                   >
                     {open ? "en curso" : "resuelto"}
                   </span>
                   <span className="tabular text-xs text-dim">
                     {open
-                      ? duration(Date.now() - new Date(incident.startedAt).getTime())
+                      ? duration(now - new Date(incident.startedAt).getTime())
                       : duration(incident.durationMs ?? 0)}
                   </span>
                 </div>

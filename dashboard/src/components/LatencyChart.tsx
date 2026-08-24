@@ -57,7 +57,7 @@ export function LatencyChart({ checks }: { checks: Check[] }) {
             >
               <title>{`${new Date(check.checkedAt).toLocaleString()} · ${check.error ?? "falló"}`}</title>
             </circle>
-          )
+          ),
         )}
       </svg>
       <div className="tabular flex justify-between text-[11px] text-dim">

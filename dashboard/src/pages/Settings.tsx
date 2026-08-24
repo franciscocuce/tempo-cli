@@ -47,6 +47,25 @@ function Channels() {
     }
   }
 
+  async function toggle(channel: Channel) {
+    try {
+      await api.toggleChannel(channel.id, !channel.enabled);
+      await load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo cambiar el canal");
+    }
+  }
+
+  async function remove(channel: Channel) {
+    try {
+      await api.deleteChannel(channel.id);
+      toast.ok("Canal eliminado");
+      await load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo eliminar");
+    }
+  }
+
   if (channels === null) {
     return <Spinner label="Cargando canales" />;
   }
@@ -83,22 +102,10 @@ function Channels() {
                 <Button onClick={() => void test(channel)} disabled={!channel.readable}>
                   Probar
                 </Button>
-                <Button
-                  onClick={async () => {
-                    await api.toggleChannel(channel.id, !channel.enabled);
-                    await load();
-                  }}
-                >
+                <Button onClick={() => void toggle(channel)}>
                   {channel.enabled ? "Pausar" : "Activar"}
                 </Button>
-                <Button
-                  variant="danger"
-                  onClick={async () => {
-                    await api.deleteChannel(channel.id);
-                    toast.ok("Canal eliminado");
-                    await load();
-                  }}
-                >
+                <Button variant="danger" onClick={() => void remove(channel)}>
                   Borrar
                 </Button>
               </div>
@@ -107,7 +114,10 @@ function Channels() {
         </ul>
       )}
 
-      <form onSubmit={add} className="flex flex-col gap-3 border-t border-line pt-4">
+      <form
+        onSubmit={(event) => void add(event)}
+        className="flex flex-col gap-3 border-t border-line pt-4"
+      >
         <Field
           label="Nombre del canal"
           value={label}
@@ -154,7 +164,7 @@ function Password() {
 
   return (
     <Card title="Contraseña">
-      <form onSubmit={submit} className="flex max-w-sm flex-col gap-3">
+      <form onSubmit={(event) => void submit(event)} className="flex max-w-sm flex-col gap-3">
         <Field
           label="Contraseña actual"
           type="password"

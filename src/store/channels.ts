@@ -40,7 +40,7 @@ export function addChannel(db: Database, input: NewChannel): ChannelView {
   const result = db
     .prepare(
       `INSERT INTO channels (type, label, target, enabled, created_at)
-       VALUES (?, ?, ?, 1, ?)`
+       VALUES (?, ?, ?, 1, ?)`,
     )
     .run(input.type, input.label, encrypt(input.target), new Date().toISOString());
 

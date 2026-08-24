@@ -95,7 +95,7 @@ export function addMonitor(db: Database, input: NewMonitor): Monitor {
       `INSERT INTO monitors
          (name, url, method, cron, expected_status, keyword, keyword_mode,
           timeout_ms, follow_redirects, confirm_threshold, enabled, is_public, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
     )
     .run(
       input.name,
@@ -109,7 +109,7 @@ export function addMonitor(db: Database, input: NewMonitor): Monitor {
       input.followRedirects ? 1 : 0,
       input.confirmThreshold,
       input.isPublic ? 1 : 0,
-      new Date().toISOString()
+      new Date().toISOString(),
     );
 
   return getMonitor(db, Number(result.lastInsertRowid))!;

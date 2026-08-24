@@ -12,7 +12,13 @@ export function StatTile({
   tone?: "ink" | "up" | "down" | "warn";
 }) {
   const color =
-    tone === "up" ? "text-up" : tone === "down" ? "text-down" : tone === "warn" ? "text-warn" : "text-ink";
+    tone === "up"
+      ? "text-up"
+      : tone === "down"
+        ? "text-down"
+        : tone === "warn"
+          ? "text-warn"
+          : "text-ink";
 
   return (
     <div className="rounded-xl border border-line bg-surface px-4 py-3">

@@ -43,10 +43,10 @@ describe("retención", () => {
   }
 
   function dailyRow(day: string) {
-    return db.prepare("SELECT * FROM checks_daily WHERE monitor_id = ? AND day = ?").get(
-      monitorId,
-      day
-    ) as { total: number; failed: number; avg_latency: number; p95_latency: number } | undefined;
+    return db
+      .prepare("SELECT * FROM checks_daily WHERE monitor_id = ? AND day = ?")
+      .get(monitorId, day) as
+      { total: number; failed: number; avg_latency: number; p95_latency: number } | undefined;
   }
 
   it("resume un día en una fila", () => {

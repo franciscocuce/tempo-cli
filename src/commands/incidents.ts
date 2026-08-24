@@ -37,7 +37,7 @@ export function incidents(options: IncidentsOptions): void {
       id: incident.id,
       monitor: incident.monitorName,
       desde: new Date(incident.startedAt).toLocaleString(),
-      "duración":
+      duración:
         incident.durationMs === null
           ? `${humanDuration(now - new Date(incident.startedAt).getTime())} (en curso)`
           : humanDuration(incident.durationMs),

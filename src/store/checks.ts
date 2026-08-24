@@ -59,7 +59,7 @@ export function addCheck(db: Database, check: NewCheck): number {
   const result = db
     .prepare(
       `INSERT INTO checks (monitor_id, checked_at, ok, http_status, latency_ms, error)
-       VALUES (?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?)`,
     )
     .run(
       check.monitorId,
@@ -67,7 +67,7 @@ export function addCheck(db: Database, check: NewCheck): number {
       check.ok ? 1 : 0,
       check.httpStatus,
       check.latencyMs,
-      check.error
+      check.error,
     );
 
   return Number(result.lastInsertRowid);
@@ -91,7 +91,7 @@ export function listChecks(db: Database, options: ListChecksOptions = {}): Check
          JOIN monitors ON monitors.id = checks.monitor_id
          ${where}
         ORDER BY checks.id DESC
-        LIMIT ?`
+        LIMIT ?`,
     )
     .all(...params) as CheckRow[];
 

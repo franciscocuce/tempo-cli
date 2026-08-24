@@ -59,7 +59,7 @@ export async function assertAllowedTarget(raw: string): Promise<URL> {
     if (isBlockedAddress(address)) {
       throw new BlockedTargetError(
         `${url.hostname} apunta a una dirección privada o reservada (${address}). ` +
-          "Si es a propósito, arrancá tempo con TEMPO_ALLOW_PRIVATE_TARGETS=1"
+          "Si es a propósito, arrancá tempo con TEMPO_ALLOW_PRIVATE_TARGETS=1",
       );
     }
   }
@@ -162,7 +162,7 @@ function ipv4ToInt(address: string): number | null {
 
 function inCidr(value: number, base: number, bits: number): boolean {
   const mask = bits === 0 ? 0 : (0xffffffff << (32 - bits)) >>> 0;
-  return ((value & mask) >>> 0) === ((base & mask) >>> 0);
+  return (value & mask) >>> 0 === (base & mask) >>> 0;
 }
 
 function parseIPv6(address: string): number[] | null {

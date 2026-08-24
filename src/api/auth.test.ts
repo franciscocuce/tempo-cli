@@ -121,7 +121,7 @@ describe("autenticación", () => {
     it("la cookie csrf NO es httpOnly, porque el front tiene que leerla", async () => {
       const res = await request(app).get("/api/auth/me");
       const csrf = (res.headers["set-cookie"] as unknown as string[]).find((c) =>
-        c.startsWith(CSRF_COOKIE)
+        c.startsWith(CSRF_COOKIE),
       )!;
       expect(csrf.toLowerCase()).not.toContain("httponly");
     });

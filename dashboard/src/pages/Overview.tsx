@@ -32,7 +32,7 @@ export function Overview({ reloadKey }: { reloadKey: number }) {
         monitor,
         days: stats[index].history.map((day) => day.percent),
         from: stats[index].history[0]?.day ?? "",
-      }))
+      })),
     );
   }, []);
 
@@ -46,7 +46,7 @@ export function Overview({ reloadKey }: { reloadKey: number }) {
       toast[result.ok ? "ok" : "error"](
         result.ok
           ? `${monitor.name} responde en ${result.latencyMs} ms`
-          : `${monitor.name}: ${result.error ?? "falló"}`
+          : `${monitor.name}: ${result.error ?? "falló"}`,
       );
       await load();
     } catch (err) {

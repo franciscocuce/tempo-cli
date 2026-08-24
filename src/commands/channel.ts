@@ -1,10 +1,5 @@
 import { openDb } from "../db/connection.js";
-import {
-  addChannel,
-  getChannel,
-  listChannelViews,
-  removeChannel,
-} from "../store/channels.js";
+import { addChannel, getChannel, listChannelViews, removeChannel } from "../store/channels.js";
 import { newChannelSchema, issuesToMessage } from "../store/validate.js";
 import { send } from "../notify/index.js";
 import { parseId } from "./parse-id.js";
@@ -59,7 +54,7 @@ export function channelList(): void {
         destino: channel.target,
         estado: channel.enabled ? "activo" : "pausado",
         legible: channel.readable ? "sí" : "no (¿cambió TEMPO_SECRET_KEY?)",
-      }))
+      })),
     );
   } finally {
     db.close();

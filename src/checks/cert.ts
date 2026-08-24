@@ -43,7 +43,7 @@ export function isExpiringSoon(info: CertInfo, days: number = CERT_WARNING_DAYS)
 
 export async function readCertificate(
   rawUrl: string,
-  timeoutMs: number = DEFAULT_TIMEOUT_MS
+  timeoutMs: number = DEFAULT_TIMEOUT_MS,
 ): Promise<CertInfo | null> {
   const url = await assertAllowedTarget(rawUrl);
 
@@ -77,7 +77,7 @@ function fetchPeerCertificate(url: URL, timeoutMs: number): Promise<PeerCertific
           return;
         }
         resolve(cert);
-      }
+      },
     );
 
     socket.setTimeout(timeoutMs, () => {
@@ -85,7 +85,7 @@ function fetchPeerCertificate(url: URL, timeoutMs: number): Promise<PeerCertific
       reject(new Error(`${host} no respondió el saludo TLS en ${timeoutMs / 1000}s`));
     });
 
-    socket.once("error", (err) => {
+    socket.once("error", (err: Error) => {
       socket.destroy();
       reject(err);
     });

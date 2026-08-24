@@ -47,11 +47,21 @@ export class ApiClient {
   }
 
   async post(url: string, body?: unknown) {
-    return this.remember(await this.agent.post(url).set(CSRF_HEADER, this.csrf).send(body ?? {}));
+    return this.remember(
+      await this.agent
+        .post(url)
+        .set(CSRF_HEADER, this.csrf)
+        .send(body ?? {}),
+    );
   }
 
   async patch(url: string, body?: unknown) {
-    return this.remember(await this.agent.patch(url).set(CSRF_HEADER, this.csrf).send(body ?? {}));
+    return this.remember(
+      await this.agent
+        .patch(url)
+        .set(CSRF_HEADER, this.csrf)
+        .send(body ?? {}),
+    );
   }
 
   async delete(url: string) {
@@ -65,7 +75,10 @@ export class ApiClient {
 
   /** Igual que post pero con un token CSRF inventado. */
   postWithCsrf(url: string, token: string, body?: unknown) {
-    return this.agent.post(url).set(CSRF_HEADER, token).send(body ?? {});
+    return this.agent
+      .post(url)
+      .set(CSRF_HEADER, token)
+      .send(body ?? {});
   }
 
   async setup(token: string, email = TEST_EMAIL, password = TEST_PASSWORD) {

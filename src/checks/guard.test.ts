@@ -72,13 +72,13 @@ describe("assertAllowedTarget", () => {
 
   it("rechaza una IP privada escrita directo en la URL", async () => {
     await expect(assertAllowedTarget("http://169.254.169.254/latest/meta-data/")).rejects.toThrow(
-      /privada o reservada/
+      /privada o reservada/,
     );
   });
 
   it("rechaza localhost", async () => {
     await expect(assertAllowedTarget("http://127.0.0.1:3000/api")).rejects.toThrow(
-      /privada o reservada/
+      /privada o reservada/,
     );
   });
 
@@ -95,7 +95,7 @@ describe("assertAllowedTarget", () => {
 
   it("avisa cuando el dominio no resuelve", async () => {
     await expect(
-      assertAllowedTarget("https://este-dominio-no-existe-tempo.invalid")
+      assertAllowedTarget("https://este-dominio-no-existe-tempo.invalid"),
     ).rejects.toThrow(/No se pudo resolver/);
   });
 });

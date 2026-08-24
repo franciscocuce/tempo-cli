@@ -48,17 +48,13 @@ const monitorFields = z.object({
     }
   }),
 
-  expectedStatus: z
-    .string()
-    .trim()
-    .default(DEFAULT_EXPECTED_STATUS)
-    .refine(isValidStatusSpec, {
-      message: 'Estado esperado inválido. Se admite "200", "2xx", "200-299" o una lista',
-    }),
+  expectedStatus: z.string().trim().default(DEFAULT_EXPECTED_STATUS).refine(isValidStatusSpec, {
+    message: 'Estado esperado inválido. Se admite "200", "2xx", "200-299" o una lista',
+  }),
 
   keyword: z.preprocess(
     emptyToNull,
-    z.string().trim().max(200, "La palabra clave no puede pasar de 200 caracteres").nullable()
+    z.string().trim().max(200, "La palabra clave no puede pasar de 200 caracteres").nullable(),
   ),
 
   keywordMode: z
@@ -88,7 +84,7 @@ const monitorFields = z.object({
 
 function noKeywordOnHead(
   monitor: { method?: string; keyword?: string | null },
-  ctx: z.RefinementCtx
+  ctx: z.RefinementCtx,
 ): void {
   if (monitor.keyword != null && monitor.method === "HEAD") {
     ctx.addIssue({
@@ -107,7 +103,9 @@ export const patchMonitorSchema = monitorFields
   .superRefine(noKeywordOnHead);
 
 export const newChannelSchema = z.object({
-  type: z.enum(["discord"], { errorMap: () => ({ message: 'Por ahora solo hay canales "discord"' }) }),
+  type: z.enum(["discord"], {
+    errorMap: () => ({ message: 'Por ahora solo hay canales "discord"' }),
+  }),
   label: z.string().trim().min(1, "Ponele un nombre al canal").max(60),
   target: z
     .string()
@@ -122,6 +120,10 @@ export const newChannelSchema = z.object({
         });
       }
     }),
+});
+
+export const patchChannelSchema = z.object({
+  enabled: z.boolean({ required_error: "Falta el campo enabled (boolean)" }),
 });
 
 export type ValidatedNewMonitor = z.infer<typeof newMonitorSchema>;

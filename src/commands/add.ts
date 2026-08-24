@@ -49,9 +49,7 @@ export function add(options: AddOptions): void {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error(
-      message.includes("UNIQUE")
-        ? `Ya existe un monitor con el nombre "${options.name}"`
-        : message
+      message.includes("UNIQUE") ? `Ya existe un monitor con el nombre "${options.name}"` : message,
     );
     process.exitCode = 1;
   } finally {

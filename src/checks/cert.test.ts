@@ -15,7 +15,10 @@ describe("certInfo", () => {
   });
 
   it("saca el emisor del certificado", () => {
-    const info = certInfo({ valid_to: "Sep 19 12:00:00 2026 GMT", issuer: { O: "Let's Encrypt" } }, NOW);
+    const info = certInfo(
+      { valid_to: "Sep 19 12:00:00 2026 GMT", issuer: { O: "Let's Encrypt" } },
+      NOW,
+    );
     expect(info?.issuer).toBe("Let's Encrypt");
   });
 

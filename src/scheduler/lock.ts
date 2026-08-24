@@ -45,13 +45,13 @@ export function acquireLock(db: Database, now: Date = new Date()): Lock | null {
     `INSERT INTO scheduler_lock (id, pid, host, heartbeat_at)
      VALUES (1, ?, ?, ?)
      ON CONFLICT (id) DO UPDATE SET pid = excluded.pid, host = excluded.host,
-                                    heartbeat_at = excluded.heartbeat_at`
+                                    heartbeat_at = excluded.heartbeat_at`,
   ).run(process.pid, hostname(), now.toISOString());
 
   const beat = setInterval(() => {
     try {
       db.prepare("UPDATE scheduler_lock SET heartbeat_at = ? WHERE id = 1").run(
-        new Date().toISOString()
+        new Date().toISOString(),
       );
     } catch {
       // la base se cerró antes que el intervalo, no hay nada que hacer

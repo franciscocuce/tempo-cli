@@ -39,6 +39,11 @@ export function Layout({ children, connected }: { children: ReactNode; connected
   const navigate = useNavigate();
   const [theme, toggleTheme] = useTheme();
 
+  async function logout() {
+    await signOut();
+    await navigate("/login");
+  }
+
   return (
     <div className="min-h-full">
       <OfflineBanner connected={connected} />
@@ -78,13 +83,7 @@ export function Layout({ children, connected }: { children: ReactNode; connected
               {theme === "dark" ? "☀" : "☾"}
             </button>
             <span className="hidden text-dim sm:inline">{user?.email}</span>
-            <button
-              onClick={async () => {
-                await signOut();
-                navigate("/login");
-              }}
-              className="text-dim transition hover:text-ink"
-            >
+            <button onClick={() => void logout()} className="text-dim transition hover:text-ink">
               salir
             </button>
           </div>

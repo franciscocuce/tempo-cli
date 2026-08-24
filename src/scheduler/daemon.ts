@@ -23,7 +23,7 @@ export function startDaemon(db: Database, options: DaemonOptions = {}): Daemon {
     const holder = lockHolder(db);
     throw new AlreadyRunningError(
       `Ya hay un tempo vigilando esta base (pid ${holder?.pid} en ${holder?.host}). ` +
-        "Dos schedulers sobre la misma base chequearían todo dos veces."
+        "Dos schedulers sobre la misma base chequearían todo dos veces.",
     );
   }
 
@@ -61,6 +61,6 @@ function logCheck(monitor: Monitor, transition: Transition): void {
 
 function logSkip(monitor: Monitor): void {
   console.log(
-    `[${new Date().toLocaleTimeString()}] ${monitor.name} sigue respondiendo del chequeo anterior, se saltea`
+    `[${new Date().toLocaleTimeString()}] ${monitor.name} sigue respondiendo del chequeo anterior, se saltea`,
   );
 }

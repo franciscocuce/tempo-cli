@@ -30,7 +30,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       ok: (message) => push(message, "ok"),
       error: (message) => push(message, "error"),
     }),
-    [push]
+    [push],
   );
 
   return (

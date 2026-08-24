@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import {
-  api,
-  type Check,
-  type Incident,
-  type Monitor,
-  type MonitorStats,
-} from "../lib/api.js";
+import { api, type Check, type Incident, type Monitor, type MonitorStats } from "../lib/api.js";
 import { StatTile } from "../components/StatTile.js";
 import { StatusPill } from "../components/StatusPill.js";
 import { UptimeBar } from "../components/UptimeBar.js";
@@ -14,14 +8,24 @@ import { LatencyChart } from "../components/LatencyChart.js";
 import { Button, Card, Empty, Spinner } from "../components/ui.js";
 import { Modal } from "../components/Modal.js";
 import { MonitorForm } from "./MonitorForm.js";
-import { certText, cronToText, dateTime, duration, latency, percent, relative } from "../lib/format.js";
+import {
+  certText,
+  cronToText,
+  dateTime,
+  duration,
+  latency,
+  percent,
+  relative,
+} from "../lib/format.js";
 import { useToast } from "../lib/toast.js";
+import { useNow } from "../lib/now.js";
 
 export function MonitorDetail({ reloadKey }: { reloadKey: number }) {
   const { id } = useParams();
   const monitorId = Number(id);
   const navigate = useNavigate();
   const toast = useToast();
+  const now = useNow();
 
   const [monitor, setMonitor] = useState<Monitor | null>(null);
   const [stats, setStats] = useState<MonitorStats | null>(null);
@@ -70,7 +74,7 @@ export function MonitorDetail({ reloadKey }: { reloadKey: number }) {
   async function checkNow() {
     const result = await api.checkNow(monitorId);
     toast[result.ok ? "ok" : "error"](
-      result.ok ? `Responde en ${result.latencyMs} ms` : (result.error ?? "Falló el chequeo")
+      result.ok ? `Responde en ${result.latencyMs} ms` : (result.error ?? "Falló el chequeo"),
     );
     await load();
   }
@@ -84,7 +88,7 @@ export function MonitorDetail({ reloadKey }: { reloadKey: number }) {
   async function remove() {
     await api.deleteMonitor(monitorId);
     toast.ok("Monitor eliminado");
-    navigate("/");
+    await navigate("/");
   }
 
   return (
@@ -125,7 +129,7 @@ export function MonitorDetail({ reloadKey }: { reloadKey: number }) {
           role="alert"
           className="rounded-lg border border-down/40 bg-down/10 px-4 py-3 text-sm text-down"
         >
-          Caído desde hace {duration(Date.now() - new Date(monitor.openIncidentSince).getTime())}.{" "}
+          Caído desde hace {duration(now - new Date(monitor.openIncidentSince).getTime())}.{" "}
           {monitor.lastError}
         </div>
       )}

@@ -17,7 +17,7 @@ function key(): Buffer {
 
   if (raw === undefined || raw.trim() === "") {
     throw new Error(
-      "Falta TEMPO_SECRET_KEY. Generá una con: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
+      "Falta TEMPO_SECRET_KEY. Generá una con: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
     );
   }
 

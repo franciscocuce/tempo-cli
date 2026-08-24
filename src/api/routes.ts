@@ -18,7 +18,13 @@ import {
   removeChannel,
   setChannelEnabled,
 } from "../store/channels.js";
-import { newMonitorSchema, patchMonitorSchema, newChannelSchema, issuesToMessage } from "../store/validate.js";
+import {
+  newMonitorSchema,
+  patchMonitorSchema,
+  newChannelSchema,
+  patchChannelSchema,
+  issuesToMessage,
+} from "../store/validate.js";
 import { checkMonitor } from "../scheduler/runner.js";
 import { monitorNextRun } from "../scheduler/next-run.js";
 import { send } from "../notify/index.js";
@@ -28,6 +34,12 @@ import type { EventBus } from "../events/bus.js";
 function parseIdParam(raw: string): number | null {
   const id = Number(raw);
   return Number.isInteger(id) && id > 0 ? id : null;
+}
+
+// express parsea ?a[b]=1 como objeto y ?a=1&a=2 como array, así que un query param
+// no es necesariamente un string. Lo que no sea string se descarta
+function queryString(value: unknown): string {
+  return typeof value === "string" ? value : "";
 }
 
 function withStatus(db: Database, monitor: Monitor, now: Date) {
@@ -190,23 +202,23 @@ export function createApiRouter(db: Database, bus: EventBus): Router {
   });
 
   router.get("/checks", (req, res) => {
-    const monitorId = parseIdParam(String(req.query.monitor ?? ""));
+    const monitorId = parseIdParam(queryString(req.query.monitor));
     res.json(
       listChecks(db, {
         monitorId: monitorId ?? undefined,
         limit: clampLimit(req.query.limit),
-      })
+      }),
     );
   });
 
   router.get("/incidents", (req, res) => {
-    const monitorId = parseIdParam(String(req.query.monitor ?? ""));
+    const monitorId = parseIdParam(queryString(req.query.monitor));
     res.json(
       listIncidents(db, {
         monitorId: monitorId ?? undefined,
         limit: clampLimit(req.query.limit),
         onlyOpen: req.query.open === "true",
-      })
+      }),
     );
   });
 
@@ -252,11 +264,12 @@ export function createApiRouter(db: Database, bus: EventBus): Router {
       res.status(400).json({ error: "id inválido" });
       return;
     }
-    if (typeof req.body?.enabled !== "boolean") {
-      res.status(400).json({ error: "Falta el campo enabled (boolean)" });
+    const parsed = patchChannelSchema.safeParse(req.body ?? {});
+    if (!parsed.success) {
+      res.status(400).json({ error: issuesToMessage(parsed.error) });
       return;
     }
-    if (!setChannelEnabled(db, id, req.body.enabled)) {
+    if (!setChannelEnabled(db, id, parsed.data.enabled)) {
       res.status(404).json({ error: `No existe un canal con id ${id}` });
       return;
     }

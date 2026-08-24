@@ -27,7 +27,13 @@ export type TempoEvent = CheckEvent | IncidentEvent;
 export function useEventStream(onEvent: (event: TempoEvent) => void): boolean {
   const [connected, setConnected] = useState(false);
   const handler = useRef(onEvent);
-  handler.current = onEvent;
+
+  // el ref existe para que el efecto de abajo no dependa de onEvent (si dependiera,
+  // reabriría el stream en cada render). Escribirlo en un efecto y no durante el render
+  // es lo que pide React: durante el render el componente tiene que ser puro
+  useEffect(() => {
+    handler.current = onEvent;
+  }, [onEvent]);
 
   useEffect(() => {
     const source = new EventSource("/api/events");

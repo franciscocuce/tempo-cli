@@ -28,10 +28,14 @@ export function list(): void {
         nombre: monitor.name,
         url: monitor.url,
         cron: monitor.cron,
-        estado: state(monitor.enabled, getOpenIncident(db, monitor.id) !== undefined, last !== undefined),
+        estado: state(
+          monitor.enabled,
+          getOpenIncident(db, monitor.id) !== undefined,
+          last !== undefined,
+        ),
         "uptime 24h": uptime.percent === null ? "—" : `${uptime.percent}%`,
         latencia: last === undefined ? "—" : `${last.latencyMs}ms`,
-        "próximo": next === null ? "—" : next.toLocaleTimeString(),
+        próximo: next === null ? "—" : next.toLocaleTimeString(),
       };
     });
 

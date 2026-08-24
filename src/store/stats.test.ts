@@ -31,7 +31,12 @@ describe("percentile", () => {
   });
 
   it("saca el p95", () => {
-    expect(percentile(Array.from({ length: 100 }, (_, i) => i + 1), 95)).toBe(95);
+    expect(
+      percentile(
+        Array.from({ length: 100 }, (_, i) => i + 1),
+        95,
+      ),
+    ).toBe(95);
   });
 
   it("no depende del orden de entrada", () => {
