@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: Lint, tipos y tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            dashboard/package-lock.json
+
+      - name: Instalar dependencias
+        run: |
+          npm ci
+          npm ci --prefix dashboard
+
+      - name: Formato
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tipos
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Build del backend
+        run: npm run build
+
+      - name: Build del dashboard
+        run: npm run dashboard:build
+
+  docker:
+    name: Imagen de Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      # no se publica en ningún registry: esto solo verifica que la imagen siga construyendo,
+      # que es donde se rompen las cosas (los binarios nativos de better-sqlite3 y argon2)
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: tempo:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Arranca y responde
+        run: |
+          docker run -d --name tempo-ci \
+            -e TEMPO_SECRET_KEY=$(openssl rand -hex 32) \
+            -p 3000:3000 tempo:ci
+
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3000/api/public/status > /dev/null; then
+              echo "responde"
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "no respondió en 60s"
+          docker logs tempo-ci
+          exit 1
+
+      - name: Logs si algo falló
+        if: failure()
+        run: docker logs tempo-ci || true

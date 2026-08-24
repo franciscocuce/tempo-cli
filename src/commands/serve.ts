@@ -6,17 +6,22 @@ import { countUsers } from "../store/users.js";
 import { newToken } from "../auth/tokens.js";
 
 const DEFAULT_HOST = "127.0.0.1";
+const DEFAULT_PORT = "3000";
 
 interface ServeOptions {
-  port: string;
+  port?: string;
   host?: string;
   scheduler?: boolean;
 }
 
 export function serve(options: ServeOptions): void {
-  const port = Number(options.port);
+  // el flag gana, después la variable de entorno y al final el default. Los defaults viven acá
+  // y no en commander: si los pusiéramos allá, el flag siempre traería valor y la variable
+  // de entorno nunca llegaría a leerse
+  const rawPort = options.port ?? process.env.TEMPO_PORT ?? DEFAULT_PORT;
+  const port = Number(rawPort);
   if (!Number.isInteger(port) || port <= 0 || port > 65535) {
-    console.error(`"${options.port}" no es un puerto válido`);
+    console.error(`"${rawPort}" no es un puerto válido`);
     process.exitCode = 1;
     return;
   }

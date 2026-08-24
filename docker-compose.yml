@@ -1,0 +1,27 @@
+services:
+  tempo:
+    build: .
+    image: tempo
+    restart: unless-stopped
+    ports:
+      # solo en la máquina local. Para exponerlo de verdad, poné un reverse proxy con TLS
+      # adelante y sacá el 127.0.0.1 de adelante
+      - "127.0.0.1:${TEMPO_PUBLISH_PORT:-3000}:3000"
+    environment:
+      # obligatoria: cifra las URLs de los webhooks. Si cambia, los canales guardados
+      # dejan de poder descifrarse
+      TEMPO_SECRET_KEY: ${TEMPO_SECRET_KEY:?falta TEMPO_SECRET_KEY, mirá .env.example}
+      # el contenedor está aislado: escuchar en todas sus interfaces es lo correcto acá,
+      # quien decide la exposición real es el mapeo de puertos de arriba
+      TEMPO_HOST: 0.0.0.0
+      TEMPO_PORT: 3000
+      TEMPO_DATA_DIR: /data
+      # detrás de un proxy, para que el rate limit vea la IP del visitante y no la del proxy
+      TEMPO_TRUST_PROXY: ${TEMPO_TRUST_PROXY:-}
+      TEMPO_SECURE_COOKIES: ${TEMPO_SECURE_COOKIES:-}
+    volumes:
+      # la base y el WAL viven acá: sin esto, cada recreación del contenedor empieza de cero
+      - tempo-data:/data
+
+volumes:
+  tempo-data:

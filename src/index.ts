@@ -132,8 +132,8 @@ program.command("start").description("Arranca el scheduler (Ctrl+C para parar)")
 program
   .command("serve")
   .description("Levanta la API REST, el dashboard y el scheduler")
-  .option("--port <n>", "puerto donde escuchar", "3000")
-  .option("--host <host>", "interfaz donde escuchar", "127.0.0.1")
+  .option("--port <n>", "puerto donde escuchar (default: TEMPO_PORT o 3000)")
+  .option("--host <host>", "interfaz donde escuchar (default: TEMPO_HOST o 127.0.0.1)")
   .option("--no-scheduler", "levantar solo la web, sin chequear")
   .action(serve);
 
