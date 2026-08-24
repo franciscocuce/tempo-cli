@@ -9,6 +9,8 @@ CV que había mandado esa misma semana.
 Discord cuando se caen, y publica un status page que podés enlazar. Corre en un contenedor, guarda
 todo en un archivo SQLite y el motor que agenda los chequeos está **escrito desde cero**.
 
+![Dashboard de tempo](docs/dashboard.png)
+
 ## Qué hace
 
 - **Chequea sitios** cada tanto, con la frecuencia que le pongas en formato cron.
@@ -41,6 +43,8 @@ docker compose logs | grep -A2 "token"
 ```
 
 No hay contraseña por defecto, ni la va a haber.
+
+<img src="docs/login.png" width="420" alt="Pantalla de login de tempo">
 
 <details>
 <summary>Sin Docker</summary>
@@ -142,11 +146,9 @@ peligrosa no aporta al caso de uso, la respuesta no es blindarla.
 
 ### Lo que no cubre
 
-- **No hay multi-tenancy.** Todos los usuarios ven y editan todos los monitores. Es
-  [una decisión](docs/decisiones.md#3-una-instancia-varios-usuarios-monitores-compartidos), no un
-  olvido: está pensado para una instancia personal o de equipo chico.
-- **No hay tope de monitores por usuario.** No exponer el registro a internet abierta sin pensarlo:
-  ver [hosting.md](docs/hosting.md).
+- **No hay multi-tenancy.** Todos los usuarios ven y editan todos los monitores. Es una decisión, no
+  un olvido: está pensado para una instancia personal o de equipo chico.
+- **No hay tope de monitores por usuario.** No exponer el registro a internet abierta sin pensarlo.
 - **No hace TLS.** Poné un reverse proxy adelante.
 
 ## Cómo está hecho
@@ -171,11 +173,6 @@ Tres cosas que quizás te interesen:
 - **El scheduler está endurecido**: no solapa chequeos del mismo monitor, limita la concurrencia,
   desparrama los disparos con jitter, y un lock en SQLite impide que dos daemons vigilen la misma base.
 - **Los gráficos son SVG escrito a mano**, sin librería de charts.
-
-**Si querés entender cómo funciona por dentro**, está todo explicado con calma en
-[RECORRIDO.md](RECORRIDO.md) — desde cómo se expanden las expresiones cron hasta por qué el estado de
-los incidentes se deriva de la base y no de memoria. Las decisiones de arquitectura y sus
-alternativas están en [docs/decisiones.md](docs/decisiones.md).
 
 ## Desarrollo
 
