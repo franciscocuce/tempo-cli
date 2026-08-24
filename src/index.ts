@@ -18,6 +18,7 @@ import {
 import { start } from "./commands/start.js";
 import { serve } from "./commands/serve.js";
 import { maintenance } from "./commands/maintenance.js";
+import { backup, restore } from "./commands/backup.js";
 
 const program = new Command();
 
@@ -136,6 +137,17 @@ program
   .option("--host <host>", "interfaz donde escuchar (default: TEMPO_HOST o 127.0.0.1)")
   .option("--no-scheduler", "levantar solo la web, sin chequear")
   .action(serve);
+
+program
+  .command("backup <destino>")
+  .description("Copia la base en caliente, sin parar el scheduler (o a una carpeta, con la fecha)")
+  .action((dest: string) => void backup(dest));
+
+program
+  .command("restore <origen>")
+  .description("Reemplaza la base con una copia (deja la anterior en .bak)")
+  .option("--yes", "no preguntar antes de reemplazar")
+  .action((source: string, options: { yes?: boolean }) => void restore(source, options));
 
 program
   .command("maintenance")

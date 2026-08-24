@@ -46,6 +46,24 @@ export function parseTargetUrl(raw: string): URL {
   return url;
 }
 
+// versión sincrónica y sin DNS: solo mira la IP cuando la URL ya trae una literal.
+// Existe para poder avisar al guardar el monitor y no recién en el primer chequeo.
+// NO reemplaza a assertAllowedTarget: un dominio puede resolver a una dirección privada,
+// y puede pasar a resolver a una después de guardado (DNS rebinding). El chequeo real
+// sigue siendo el de abajo, que corre cada vez
+export function blockedLiteralAddress(url: URL): string | null {
+  if (allowsPrivateTargets()) {
+    return null;
+  }
+
+  const host = url.hostname.replace(/^\[|\]$/g, "");
+  if (isIP(host) === 0) {
+    return null;
+  }
+
+  return isBlockedAddress(host) ? host : null;
+}
+
 export async function assertAllowedTarget(raw: string): Promise<URL> {
   const url = parseTargetUrl(raw);
 

@@ -6,6 +6,10 @@ import { users } from "./003-users.js";
 
 const MIGRATIONS: Migration[] = [initial, monitors, users];
 
+// hasta qué versión sabe migrar este binario. Sirve para rechazar una base que viene
+// de una versión más nueva de tempo, que tendría tablas que este código no conoce
+export const LATEST_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;
+
 export function currentVersion(db: Database): number {
   return db.pragma("user_version", { simple: true }) as number;
 }

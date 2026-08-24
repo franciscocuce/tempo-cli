@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { newMonitorSchema, patchMonitorSchema, newChannelSchema } from "./validate.js";
+import {
+  newMonitorSchema,
+  patchMonitorSchema,
+  newChannelSchema,
+  issuesToMessage,
+} from "./validate.js";
 
 const base = {
   name: "portfolio",
@@ -57,6 +62,34 @@ describe("newMonitorSchema", () => {
     expect(result.success && result.data.keyword).toBeNull();
   });
 
+  it("la palabra clave es opcional como el resto de los campos con default", () => {
+    const { keyword: _omitida, ...sinKeyword } = base;
+    const result = newMonitorSchema.safeParse(sinKeyword);
+
+    expect(result.success).toBe(true);
+    expect(result.success && result.data.keyword).toBeNull();
+  });
+
+  it("rechaza una IP privada o reservada escrita en la URL", () => {
+    for (const url of [
+      "http://169.254.169.254/latest/meta-data/",
+      "http://127.0.0.1:3000/",
+      "http://10.0.0.5/",
+      "http://192.168.1.1/",
+      "http://[::1]/",
+    ]) {
+      const result = parse({ url });
+      expect(result.success, url).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toMatch(/privada o reservada/);
+      }
+    }
+  });
+
+  it("deja pasar los dominios, que se resuelven recién al chequear", () => {
+    expect(parse({ url: "https://example.com" }).success).toBe(true);
+  });
+
   it("no deja buscar texto en una respuesta HEAD", () => {
     const result = parse({ method: "HEAD", keyword: "hola" });
     expect(result.success).toBe(false);
@@ -77,6 +110,28 @@ describe("newMonitorSchema", () => {
 
   it("rechaza un método que no está permitido", () => {
     expect(parse({ method: "DELETE" }).success).toBe(false);
+  });
+});
+
+describe("issuesToMessage", () => {
+  it("dice qué campo falla y no solo qué le pasa", () => {
+    const result = newMonitorSchema.safeParse({ url: "https://example.com" });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const message = issuesToMessage(result.error);
+      expect(message).toContain("name:");
+      expect(message).toContain("cron:");
+    }
+  });
+
+  it("junta todos los problemas en un solo mensaje", () => {
+    const result = parse({ name: "  ", cron: "cada rato" });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(issuesToMessage(result.error).split(", ").length).toBeGreaterThan(1);
+    }
   });
 });
 
