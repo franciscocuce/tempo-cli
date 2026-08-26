@@ -9,7 +9,7 @@ CV que había mandado esa misma semana.
 Discord cuando se caen, y publica un status page que podés enlazar. Corre en un contenedor, guarda
 todo en un archivo SQLite y el motor que agenda los chequeos está **escrito desde cero**.
 
-![Dashboard de tempo](docs/dashboard.png)
+![Dashboard de tempo](docs/tempo-header.webp)
 
 ## Qué hace
 
